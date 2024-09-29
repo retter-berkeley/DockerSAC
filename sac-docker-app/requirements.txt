@@ -1,0 +1,13 @@
+numpy==1.21.6
+sagemaker
+matplotlib
+importlib-metadata
+typing_extensions
+scipy
+argparse
+shutup
+jax
+sagemaker-training
+sagemaker
+/gymnasium
+/dynamics

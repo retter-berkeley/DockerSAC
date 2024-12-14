@@ -32,11 +32,11 @@ logger.propagate = False
 
 class DiffusionEnv(gym.Env):
     #no render modes
-    def __init__(self, render_mode=None, size: int =11):
+    def __init__(self, render_mode=None, size: int =9):
                 
-        self.observation_space =spaces.Box(low=0, high=10, shape=(size,), dtype=float)
+        self.observation_space =spaces.Box(low=-10, high=10, shape=(size,), dtype=float)
      
-        self.action_space = spaces.Box(-10, 10, shape=(1,), dtype=float) 
+        self.action_space = spaces.Box(-10, 10, shape=(20,), dtype=float) 
         #need to update action to normal distribution
 
         self.grid=[]
@@ -93,6 +93,7 @@ class DiffusionEnv(gym.Env):
         t_current=stepper(self.state, 0., 0.+0.1)
         #result = eq.solve(state, t_range=0.2, adaptive = True, tracker=None)       
         done=False
+        truncated=False
         observation=self._get_obs()
         #reward will be based on difference across all grid cells of sensor area between
         #desired sensor readings and actual.  This is  hard coded in the gym step function
@@ -110,11 +111,13 @@ class DiffusionEnv(gym.Env):
             for j in range(n_sense):
                 meas[i,j]=float(state.data[i+startx,j+starty])
         reward=(meas-target)**2
-        reward=1*math.sqrt(np.sum(np.sum(reward)))
-        if reward<1.0:
-            reward=-500
+        reward=-1*math.sqrt(np.sum(np.sum(reward)))
+        if reward>-1.0:
+            reward=500
             done=True
-        truncated = False #placeholder for future expnasion/limits if solution diverges
+        if np.any(state.data>50.) or np.any(state.data<-50):
+            reward=-100
+            truncated = True #placeholder for future expnasion/limits if solution diverges
 
         return self.state, reward, done, truncated, {}
     

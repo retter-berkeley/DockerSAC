@@ -179,26 +179,28 @@ def train(time0, total_reward, pi, q1, q2, q1_targ, q2_targ, tracer, buffer, pol
     #insert sensor measurement and conversion here
     s=sensor_meas(num_sens,state.data)
     start=time.time()
-    for t in range(150):
+    for t in range(250):
        #insert sensor measurement and conversion here
         s=sensor_meas(num_sens,state.data)
         #add x,y coordinates to make nn input vector s.  This means that must add x,y for all control points to s
         #i.e s dimension = #observation point measurements + 2*number of control points
         #x and y locations are control loc variables, so s will need to append each element of control loc into s
         i=0
-        for j in grid.axes_coords[1]:
-            #hard code going through x and y coor for each boundary location
-            s_full=jnp.append(s,j)
-            s_full=jnp.append(s_full, grid.axes_coords[0][1])
-            a=pi(s_full)
-            if a>5:  a=np.array([5.0])
-            elif a<-5:  a=-np.array([5.0])
-            state.data[i,1]=a.item()
-            i+=1
+        # for j in grid.axes_coords[1]:
+            # #hard code going through x and y coor for each boundary location
+            # s_full=jnp.append(s,j)
+            # s_full=jnp.append(s_full, grid.axes_coords[0][1])
+            # a=pi(s_full)
+            # if a>5:  a=np.array([5.0])
+            # elif a<-5:  a=-np.array([5.0])
+            # state.data[i,1]=a.item()
+            # i+=1
 #apply control one row in from boundary to improve computation speed by allowing periodic bcs
         #not very physical, but this is a proof of concept
         #actor.state.data=state.data[:,1]
-        actor=state.data[:,1]
+        a=pi(s)
+        
+        actor=a#state.data[:,1]
         
         s_next, r, done, truncated, info = env.step(actor)
         total_reward=r
